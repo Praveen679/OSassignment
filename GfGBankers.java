@@ -1,0 +1,141 @@
+import java.util.Scanner;
+public class GfGBankers {
+	int n = 3; // Number of processes 
+	int m = 3; // Number of resources 
+	int need[][] = new int[n][m]; 
+	int [][]max; 
+	int [][]alloc; 
+	int []avail; 
+	int safeSequence[] = new int[n];
+  	int row;
+  	int []req = new int[3];
+	
+	void initializeValues() {
+		alloc = new int[][] { { 0, 0, 1 }, //P0 
+				{ 3, 2, 0 }, //P1 
+				{ 2, 1, 1 } //P2 
+                        }; 
+		
+		// MAX Matrix 
+		max = new int[][] { { 8, 4, 3 }, //P0 
+				{ 6, 2, 0 }, //P1 
+				{ 3, 3, 3 } //P2 
+							};  
+		avail = new int[] { 3, 2, 2 }; 
+	}
+	
+	void calculateNeed() 
+	{ 
+		for (int i = 0;i < n; i++) 
+		{ 
+			for (int j = 0;j < m; j++) 
+			{ 
+			need[i][j] = max[i][j]-alloc[i][j]; 
+			}
+		}		 
+	}
+	
+	void modifyingValues(){
+		row = row - 1;
+		for(int i =0; i< req.length; i++){
+			if(req[i] <= (max[row][i] - alloc[row][i])){
+				if(req[i] <= avail[i]){
+					avail[i] = avail[i] - req[i];
+					alloc[row][i] = alloc[row][i] + req[i];
+					need[row][i] = need[row][i] - req[i];
+				}
+			}
+		}
+	}
+	void isSafe() 
+	{ 
+	int count=0; 
+	
+	//visited array to find the already allocated process 
+	boolean visited[] = new boolean[n]; 
+	for (int i = 0;i < n; i++) 
+	{ 
+		visited[i] = false; 
+	} 
+		
+	//work array to store the copy of available resources 
+	int work[] = new int[m];	 
+	for (int i = 0;i < m; i++) 
+	{ 
+		work[i] = avail[i]; 
+	} 
+
+	while (count<n) 
+	{ 
+		boolean flag = false; 
+		for (int i = 0;i < n; i++) 
+		{ 
+			if (visited[i] == false) 
+			{ 
+			int j; 
+			for (j = 0;j < m; j++) 
+			{		 
+				if (need[i][j] > work[j]) 
+				break; 
+			} 
+			if (j == m) 
+			{ 
+			safeSequence[count++]=i; 
+			visited[i]=true; 
+			flag=true; 
+						
+				for (j = 0;j < m; j++) 
+				{ 
+				work[j] = work[j]+alloc[i][j]; 
+				} 
+			} 
+			} 
+		} 
+		if (flag == false) 
+		{ 
+			break; 
+		} 
+	} 
+	if (count < n) 
+	{ 
+		System.out.println("The System is UnSafe!"); 
+	} 
+	else
+	{ 
+		//System.out.println("The given System is Safe"); 
+		System.out.println("Following is the SAFE Sequence"); 
+				for (int i = 0;i < n; i++) 
+		{ 
+			System.out.print("P" + safeSequence[i]); 
+			if (i != n-1) 
+			System.out.print(" -> "); 
+		} 
+	} 
+	} 
+	void enterInput(){
+	    Scanner scan = new Scanner(System.in);
+        System.out.print("Enter the row number of the request");
+
+        // This method reads the number provided using keyboard
+        row = scan.nextInt();
+		int index = 65;
+		for(int i =0; i < 3; i++){
+			System.out.println("Enter value of "+ (char)index);
+			index++;
+			req[i] = scan.nextInt();
+		}
+	   
+	   
+        // Closing Scanner after the use
+        scan.close();
+        
+	}
+	public static void main(String[] args) {
+		GfGBankers gfg = new GfGBankers(); 
+		gfg.enterInput();
+		gfg.initializeValues();
+		gfg.calculateNeed();	
+		gfg.modifyingValues();
+		gfg.isSafe();
+	}
+}
